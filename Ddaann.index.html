@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>CyberCheck — Тест на кибербезопасность</title>
+  <meta name="description" content="Интерактивный тест CyberCheck для проверки знаний по кибербезопасности.">
+  <meta name="keywords" content="CyberCheck, CyberCheck тест, кибербезопасность">
+  <meta name="author" content="CyberCheck Project">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="CyberCheck — Проверь свою кибербезопасность">
+  <meta property="og:description" content="Пройди 10 вопросов и узнай свой уровень!">
+  <meta property="og:type" content="website">
+
+  <style>
+    /* CSS-стили */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .quiz-container {
+      background-color: #1e293b;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 650px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #38bdf8;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #94a3b8;
+      font-size: 15px;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      background-color: #334155;
+      height: 8px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #38bdf8;
+      transition: width 0.3s ease;
+    }
+
+    .question-title {
+      font-size: 18px;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    .answers-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-answer {
+      background-color: #334155;
+      color: #f8fafc;
+      border: 2px solid transparent;
+      padding: 14px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      text-align: left;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .btn-answer:hover:not([disabled]) {
+      background-color: #475569;
+      border-color: #38bdf8;
+    }
+
+    .btn-answer.correct {
+      background-color: #065f46;
+      border-color: #10b981;
+      color: #ffffff;
+    }
+
+    .btn-answer.incorrect {
+      background-color: #991b1b;
+      border-color: #ef4444;
+      color: #ffffff;
+    }
+
+    .btn-answer:disabled {
+      cursor: default;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 25px;
+    }
+
+    .btn-next {
+      background-color: #38bdf8;
+      color: #0f172a;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      display: none;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-next:hover {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+
+    .result-screen {
+      text-align: center;
+      display: none;
+    }
+
+    .result-screen h2 {
+      font-size: 26px;
+      margin-bottom: 15px;
+      color: #38bdf8;
+    }
+
+    .result-score {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .btn-restart {
+      background-color: #38bdf8;
+      color: #0f172a;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .btn-restart:hover {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-container">
+    <div id="quiz-screen">
+      <div class="header">
+        <h1>CyberCheck</h1>
+        <p>Тест на знания кибербезопасности</p>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+
+      <div class="question-title" id="question-text">Загрузка вопроса...</div>
+      
+      <ul class="answers-list" id="answers-container"></ul>
+
+      <div class="footer">
+        <span id="question-counter" style="color: #94a3b8; font-size: 14px;">Вопрос 1 из 10</span>
+        <button class="btn-next" id="btn-next">Следующий вопрос</button>
+      </div>
+    </div>
+
+    <div class="result-screen" id="result-screen">
+      <h2>Тест завершён!</h2>
+      <p class="result-score" id="result-score"></p>
+      <button class="btn-restart" onclick="location.reload()">Пройти снова</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "1. Вам приходит SMS от вашего банка: «Зафиксирована подозрительная операция. Перейдите по ссылке security-bank-alert.com для подтверждения личности». Ваши действия?",
+        answers: [
+          { text: "Перейду по ссылке и введу данные, ведь домен содержит имя банка", correct: false },
+          { text: "Игнорирую SMS или связываюсь с банком по официальному номеру с карты", correct: true },
+          { text: "Отвечу на SMS сообщением «Я ничего не совершал»", correct: false },
+          { text: "Перешлю сообщение другу, чтобы проверить, пришло ли ему такое же", correct: false }
+        ]
+      },
+      {
+        question: "2. Вы настраиваете двухфакторную аутентификацию (2FA). Какой вариант из перечисленных обеспечивает НАИМЕНЬШИЙ уровень защиты?",
+        answers: [
+          { text: "Аппаратный ключ безопасности (FIDO2 / YubiKey)", correct: false },
+          { text: "Приложение-аутентификатор (Google Authenticator / TOTP)", correct: false },
+          { text: "Одноразовые SMS-коды на мобильный номер", correct: true },
+          { text: "Push-уведомления в официальном мобильном банке", correct: false }
+        ]
+      },
+      {
+        question: "3. Коллега прислал вам архив document.docx.exe. Что представляет собой этот файл?",
+        answers: [
+          { text: "Это защищенный документ MS Word с автозапуском", correct: false },
+          { text: "Это исполняемый файл (программа), маскирующийся под документ", correct: true },
+          { text: "Это архив, который распакует файл document.docx", correct: false },
+          { text: "Это системный компонент Windows для работы со скриптами", correct: false }
+        ]
+      },
+      {
+        question: "4. (Подвох) Вы зашли на сайт по протоколу HTTPS (в адресной строке горит зелёный замочек). Гарантирует ли это, что сайт на 100% безопасен и не является фишинговым?",
+        answers: [
+          { text: "Да, HTTPS и SSL-сертификат выдаются только проверенным компаниям", correct: false },
+          { text: "Нет, злоумышленники тоже могут легко получить бесплатный SSL-сертификат на фишинговый домен", correct: true },
+          { text: "Да, если перед адресом написано «https://», перехват и мошенничество невозможны", correct: false },
+          { text: "Нет, замочек означает лишь то, что сайт использует устаревший шифр", correct: false }
+        ]
+      },
+      {
+        question: "5. Что из перечисленного является наиболее надежным способом хранения паролей?",
+        answers: [
+          { text: "Сохранение всех паролей в зашифрованном менеджере паролей с надёжным мастер-паролем", correct: true },
+          { text: "Запись всех паролей в закрепе личного Telegram-канала / «Избранном»", correct: false },
+          { text: "Сохранение паролей в текстовом файле на рабочем столе", correct: false },
+          { text: "Использование одного очень сложного пароля для всех сервисов", correct: false }
+        ]
+      },
+      {
+        question: "6. (Подвох) На открытой Wi-Fi сети в кафе нет пароля. Вы подключаетесь к ней через быстрый и защищенный платный VPN. Могут ли злоумышленники перехватить ваш трафик?",
+        answers: [
+          { text: "Нет, VPN полностью шифрует весь трафик от вашего устройства до VPN-сервера", correct: true },
+          { text: "Да, администратор Wi-Fi всё равно видит все вводимые вами пароли", correct: false },
+          { text: "Да, любая открытая сеть автоматически отключает шифрование VPN", correct: false },
+          { text: "Нет, потому что открытые Wi-Fi сети не позволяют использовать прокси и VPN", correct: false }
+        ]
+      },
+      {
+        question: "7. Вам в мессенджер пишет руководитель/преподаватель с аккаунта со своей фотографией и говорит, что сейчас с вами свяжется куратор из органов. Каковы ваши действия?",
+        answers: [
+          { text: "Срочно выполняю все указания куратора, ведь профиль руководителя настоящий", correct: false },
+          { text: "Связываюсь с человеком лично по проверенному номеру телефона или очно", correct: true },
+          { text: "Отправляю свои паспортные данные для сверки списка сотрудников", correct: false },
+          { text: "Удаляю свой аккаунт в мессенджере от греха подальше", correct: false }
+        ]
+      },
+      {
+        question: "8. (Подвох) Какое из этих утверждений о паролях на самом деле ПРАВИЛЬНОЕ?",
+        answers: [
+          { text: "Пароль P@ssw0rd2024! надежнее, чем фраза coffee-cat-blue-skate-99", correct: false },
+          { text: "Длинная фраза из 4–5 случайных слов устойчивее к подбору, чем короткий пароль со спецсимволами", correct: true },
+          { text: "Менять пароль каждые 30 дней — самая важная мера безопасности", correct: false },
+          { text: "Вход по отпечатку пальца полностью исключает возможность взлома устройства", correct: false }
+        ]
+      },
+      {
+        question: "9. Что такое «Социальная инженерия» в контексте кибербезопасности?",
+        answers: [
+          { text: "Настройка прав доступа в социальных сетях", correct: false },
+          { text: "Метод манипулирования людьми с целью получения конфиденциальной информации", correct: true },
+          { text: "Процесс написания вирусов для мобильных операционных систем", correct: false },
+          { text: "Оптимизация работы сайтов в поисковых системах", correct: false }
+        ]
+      },
+      {
+        question: "10. Вы скачали файл с расширением .iso или .img. Что это за файл и какова главная опасность при его открытии?",
+        answers: [
+          { text: "Это музыкальный альбом, внутри могут быть вредоносные скрипты", correct: false },
+          { text: "Это образ диска, который при монтировании может автоматически запустить скрытые файлы", correct: true },
+          { text: "Это картинка высокого разрешения, безопасная для открытия", correct: false },
+          { text: "Это архив текстовых файлов, опасности не несет", correct: false }
+        ]
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const questionText = document.getElementById("question-text");
+    const answersContainer = document.getElementById("answers-container");
+    const btnNext = document.getElementById("btn-next");
+    const progressBar = document.getElementById("progress-bar");
+    const questionCounter = document.getElementById("question-counter");
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const resultScore = document.getElementById("result-score");
+
+    function showQuestion() {
+      resetState();
+      const currentQuestion = questions[currentQuestionIndex];
+      questionText.textContent = currentQuestion.question;
+
+      const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+      questionCounter.textContent = `Вопрос ${currentQuestionIndex + 1} из ${questions.length}`;
+
+      currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.textContent = answer.text;
+        button.classList.add("btn-answer");
+        if (answer.correct) {
+          button.dataset.correct = "true";
+        }
+        button.addEventListener("click", selectAnswer);
+        answersContainer.appendChild(button);
+      });
+    }
+
+    function resetState() {
+      btnNext.style.display = "none";
+      while (answersContainer.firstChild) {
+        answersContainer.removeChild(answersContainer.firstChild);
+      }
+    }
+
+    function selectAnswer(e) {
+      const selectedBtn = e.target;
+      const isCorrect = selectedBtn.dataset.correct === "true";
+
+      if (isCorrect) {
+        selectedBtn.classList.add("correct");
+        score++;
+      } else {
+        selectedBtn.classList.add("incorrect");
+      }
+
+      Array.from(answersContainer.children).forEach(button => {
+        if (button.dataset.correct === "true") {
+          button.classList.add("correct");
+        }
+        button.disabled = true;
+      });
+
+      btnNext.style.display = "block";
+    }
+
+    function handleNextButton() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      quizScreen.style.display = "none";
+      resultScreen.style.display = "block";
+      resultScore.textContent = `Вы ответили правильно на ${score} из ${questions.length} вопросов.`;
+    }
+
+    btnNext.addEventListener("click", handleNextButton);
+
+    showQuestion();
+  </script>
+</body>
+  </html>
+  
