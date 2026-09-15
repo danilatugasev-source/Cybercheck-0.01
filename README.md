@@ -1,1 +1,330 @@
 # Cybercheck-0.01
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Метатеги для индексации в Яндексе и Google -->
+    <title>CyberCheck — Тест на кибербезопасность и защиту от мошенников</title>
+    <meta name="description" content="Интерактивный тест CyberCheck для проверки индивидуального уровня защиты от интернет-мошенников, фишинга и взлома аккаунтов.">
+    <meta name="keywords" content="CyberCheck, CyberCheck тест, кибербезопасность Заинск, тест на мошенников, цифровая гигиена, проверка паролей, проверка на взлом">
+    <meta name="author" content="CyberCheck Project">
+    
+    <!-- Open Graph метатеги для красивого предпросмотра при отправке ссылки в мессенджерах -->
+    <meta property="og:title" content="CyberCheck — Проверь свою кибербезопасность">
+    <meta property="og:description" content="Пройди 5 быстрых вопросов и узнай, насколько легко мошенникам взломать твои аккаунты.">
+    <meta property="og:type" content="website">
+
+    <style>
+        /* CSS-стили: Сброс и базовые настройки */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Основной контейнер с ограничением ширины для адаптивности на ПК и смартфонах */
+        .app-container {
+            width: 100%;
+            max-width: 650px;
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+        }
+
+        /* Заголовки */
+        h1 {
+            color: #38bdf8;
+            font-size: 26px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        p.description {
+            color: #94a3b8;
+            text-align: center;
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        /* Кнопки */
+        .btn {
+            display: block;
+            width: 100%;
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Экраны интерактива */
+        .quiz-screen, .result-screen {
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #38bdf8;
+            transition: width 0.3s ease;
+        }
+
+        .question-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #334155;
+            color: #f1f5f9;
+            border: 1px solid #475569;
+            padding: 14px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover {
+            background: #475569;
+            border-color: #38bdf8;
+        }
+
+        /* Блок результатов */
+        .score-box {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid #38bdf8;
+        }
+
+        .score-title {
+            font-size: 22px;
+            color: #38bdf8;
+            margin-bottom: 8px;
+        }
+
+        .score-desc {
+            color: #cbd5e1;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Адаптированные стили для мобильных экранов */
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .question-title {
+                font-size: 16px;
+            }
+
+            .option-btn {
+                font-size: 14px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- 1. Главная страница (Приветствие) -->
+    <div id="start-screen">
+        <h1>🛡️ CyberCheck</h1>
+        <p class="description">
+            Проверь, насколько легко мошенникам получить доступ к твоим аккаунтам и персональным данным.
+            Пройди интерактивный тест из 5 вопросов и узнай свой уровень цифровой защиты!
+        </p>
+        <button class="btn" onclick="startQuiz()">Начать тест</button>
+    </div>
+
+    <!-- 2. Экран с вопросами -->
+    <div id="quiz-screen" class="quiz-screen">
+        <div class="progress-bar">
+            <div id="progress" class="progress-fill"></div>
+        </div>
+        <div id="question" class="question-title">Загрузка вопроса...</div>
+        <div id="options" class="options-list"></div>
+    </div>
+
+    <!-- 3. Экран результатов -->
+    <div id="result-screen" class="result-screen">
+        <h1>Результаты проверки</h1>
+        <div class="score-box">
+            <div id="score-title" class="score-title">Загрузка...</div>
+            <div id="score-desc" class="score-desc">Загрузка...</div>
+        </div>
+        <button class="btn" onclick="restartQuiz()">Пройти еще раз</button>
+    </div>
+</div>
+
+<script>
+    // Логика и база вопросов теста
+    const questions = [
+        {
+            question: "Вам приходит SMS от банка: «Ваша карта заблокирована. Перейдите по ссылке для разблокировки». Ваши действия?",
+            options: [
+                { text: "Перейду по ссылке и введу данные для проверки.", score: 0 },
+                { text: "Игнорирую SMS и перезвоню в банк по официальному номеру.", score: 2 },
+                { text: "Отвечу на SMS с просьбой уточнить детали.", score: 0 }
+            ]
+        },
+        {
+            question: "Какие пароли вы чаще всего используете для своих аккаунтов?",
+            options: [
+                { text: "Простые (дата рождения, 123456, имя питомца).", score: 0 },
+                { text: "Один сложный пароль для всех сервисов.", score: 1 },
+                { text: "Уникальные сложные пароли для каждого сервиса + менеджер паролей.", score: 2 }
+            ]
+        },
+        {
+            question: "Вы подключились к открытому Wi-Fi в кафе. Планируете зайти в онлайн-банк. Что сделаете?",
+            options: [
+                { text: "Спокойно зайду, сеть же без пароля.", score: 0 },
+                { text: "Отключу Wi-Fi и зайду через мобильный интернет или VPN.", score: 2 },
+                { text: "Зайду, но быстро закрою вкладку.", score: 0 }
+            ]
+        },
+        {
+            question: "Друг присылает в мессенджере ссылку с текстом: «Смотри, тут голосование за меня, проголосуй пж!».",
+            options: [
+                { text: "Сразу перейду и авторизуюсь на сайте.", score: 0 },
+                { text: "Сначала свяжусь с другом другим способом и уточню, отправлял ли он это.", score: 2 },
+                { text: "Перешлю ссылку другим друзьям.", score: 0 }
+            ]
+        },
+        {
+            question: "Включена ли у вас двухфакторная аутентификация (2FA) в соцсетях и мессенджерах?",
+            options: [
+                { text: "Да, везде, где это возможно (SMS / приложение-аутентификатор).", score: 2 },
+                { text: "Нет, это неудобно — долго входить.", score: 0 },
+                { text: "Только на рабочей/основной почте.", score: 1 }
+            ]
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let totalScore = 0;
+
+    function startQuiz() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+        currentQuestionIndex = 0;
+        totalScore = 0;
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const q = questions[currentQuestionIndex];
+        document.getElementById('question').innerText = `Вопрос ${currentQuestionIndex + 1} из ${questions.length}: ${q.question}`;
+        
+        const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
+        document.getElementById('progress').style.width = `${progressPercent}%`;
+
+        const optionsContainer = document.getElementById('options');
+        optionsContainer.innerHTML = '';
+
+        q.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt.text;
+            btn.onclick = () => selectOption(opt.score);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(score) {
+        totalScore += score;
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < questions.length) {
+            showQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+
+        const titleEl = document.getElementById('score-title');
+        const descEl = document.getElementById('score-desc');
+
+        if (totalScore >= 8) {
+            titleEl.innerText = "🟩 Кибер-Эксперт";
+            descEl.innerText = "Отличный результат! Вы отлично осведомлены о базовых правилах кибербезопасности и умеете распознавать уловки мошенников.";
+        } else if (totalScore >= 5) {
+            titleEl.innerText = "🟨 Осторожный пользователь";
+            descEl.innerText = "Хороший уровень, но есть слабые места. Будьте внимательнее к паролям и двухфакторной аутентификации.";
+        } else {
+            titleEl.innerText = "🟥 Легкая добыча";
+            descEl.innerText = "Вам стоит быть внимательнее в сети! Мошенники легко могут получить доступ к вашим аккаунтам. Рекомендуем изучить правила цифровой гигиены.";
+        }
+    }
+
+    function restartQuiz() {
+        document.getElementById('result-screen').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
